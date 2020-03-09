@@ -4,27 +4,34 @@ const server = express();
 
 let users = [];
 
+server.use(express.json());
+
 server.get('/api/users', (req, res) => {
+    
+    if (!users) {
+        res.status(500).json({
+            errorMessage: 'Error retrieving user array.'
+        })
+    }
+    else {
     res.status(200).json({
         message: 'Got user array.',
         users: users
-    })
-    res.status(500).json({ errorMessage: "The users information could not be retrieved." })
+    })}
+    
 })
 
 server.post('/api/users', (req, res) => {
-
-    if (!req.body.name || !req.body.bio) {
+    const user = {...req.body, id: shortid.generate()};
+    if (!user.name || !user.bio) {
         res.status(400).json({ errorMessage: "Please provide name and bio for the user." })
     }
     else {
-    const newUser = {...req.body, id: shortid.generate()}
-    users = [...users, newUser];
-    res.status(201).json({
-        ...newUser
-    })
+    users.push(user);
+    res.status(201).json(user)
 }
 })
+
 
 server.get('/api/users/:id', (req, res) => {
     const id = req.params.id;
