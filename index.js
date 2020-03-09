@@ -9,40 +9,61 @@ server.get('/api/users', (req, res) => {
         message: 'Got user array.',
         users: users
     })
+    res.status(500).json({ errorMessage: "The users information could not be retrieved." })
 })
 
 server.post('/api/users', (req, res) => {
+
+    if (!req.body.name || !req.body.bio) {
+        res.status(400).json({ errorMessage: "Please provide name and bio for the user." })
+    }
+    else {
     const newUser = {...req.body, id: shortid.generate()}
     users = [...users, newUser];
     res.status(201).json({
-        message: 'Successfuly posted user.',
-        newUser: newUser
+        ...newUser
     })
+}
 })
 
 server.get('/api/users/:id', (req, res) => {
     const id = req.params.id;
     const user = users.find(item => item.id = id);
+    if (!user) {
+        res.status(404).json({ message: "The user with the specified ID does not exist." })
+    }
+    else {
     res.status(200).json({
         message: `Got user with id: ${id}.`,
         user: user
     })
+}
 })
 
 server.put('/api/users/:id', (req, res) => {
     const id = req.params.id;
+    if (!users.find(item => item.id = id)) {
+        res.status(404).json({ errorMessage: "The user with the specified ID does not exist." })
+    }
+    else {
     const updatedUser = req.body;
     users = users.map(item => item.id === id ? updatedUser : item);
-    res.status(201).json({
+    res.status(200).json({
         message: `Updated user with id: ${id}.`,
         updatedUser: updatedUser
     })
+}
 })
 
 server.delete('/api/users/:id', (req, res) => {
     const id = req.params.id;
+    if (!users.find(item => item.id = id)) {
+        res.status(404).json({ errorMessage: "The user with the specified ID does not exist." })
+    }
+    else {
     users = users.filter(item => item.id !== id);
     res.status(202).json({
         message: `Deleted user with id: ${id}.`
     })
+}
 })
